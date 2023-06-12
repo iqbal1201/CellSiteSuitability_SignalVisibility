@@ -1,0 +1,62 @@
+import os
+import arcpy
+arcpy.env.overwriteOutput = True
+fc_in = r"D:\Data Iqbal\Projects\Telkomsel\Telkomsel\Default.gdb\Test_duplicate"
+fc_out = r"D:\Data Iqbal\Projects\Telkomsel\Telkomsel\Default.gdb\Test_duplicate_out2"
+fld_count = "Number"
+sr = arcpy.Describe(fc_in).spatialReference
+fieldlist = ["SHAPE@LENGTH", "SHAPE@AREA","Number","Name" ]
+fieldlist2 = ["SHAPE@", "Number","Name", "Sinyal" ]
+path, name = os.path.split(fc_out)
+arcpy.CreateFeatureclass_management(path, name, "POLYGON", fc_in, "SAME_AS_TEMPLATE", "SAME_AS_TEMPLATE", sr)
+
+with arcpy.da.SearchCursor(fc_in, fieldlist2) as curs_in:
+        flds_in = curs_in.fields
+        idx_cnt = flds_in.index("Number")
+        with arcpy.da.InsertCursor(fc_out, fieldlist2) as curs_out:
+            for row in curs_in:
+                cnt = row[idx_cnt]
+                for i in range(0, cnt):
+                    curs_out.insertRow(row)
+
+
+
+#################################
+import os
+import arcpy
+arcpy.env.overwriteOutput = True
+fc_in = r"D:\Data Iqbal\Projects\Telkomsel\Telkomsel\Default.gdb\Test_duplicate"
+fc_out = r"D:\Data Iqbal\Projects\Telkomsel\Telkomsel\Default.gdb\Test_duplicate_out2"
+fld_count = "Number"
+sr = arcpy.Describe(fc_in).spatialReference
+fieldlist = ["SHAPE@LENGTH", "SHAPE@AREA","Number","Name" ]
+fieldlist2 = ["SHAPE@", "Number","Name", "Sinyal" ]
+path, name = os.path.split(fc_out)
+arcpy.CreateFeatureclass_management(path, name, "POLYGON", fc_in, "SAME_AS_TEMPLATE", "SAME_AS_TEMPLATE", sr)
+arcpy.management.AddField(fc_out, "LantaiKe", "LONG")
+
+
+with arcpy.da.SearchCursor(fc_in, fieldlist2) as curs_in:
+        flds_in = curs_in.fields
+        idx_cnt = flds_in.index("Number")
+        with arcpy.da.InsertCursor(fc_out, fieldlist2) as curs_out:
+            for row in curs_in:
+                cnt = row[idx_cnt]
+                for i in range(0, cnt):
+                    curs_out.insertRow(row)
+
+
+########################################################################
+with arcpy.EnvManager(scratchWorkspace=r"D:\Data Iqbal\Projects\Telkomsel\Telkomsel3D\Default.gdb", workspace=r"D:\Data Iqbal\Projects\Telkomsel\Telkomsel3D\Default.gdb"):
+    arcpy.management.CalculateField("Test_duplicate_out3", "LantaiKe", "SequentialNumber()", "PYTHON3", """# Calculates a sequential number
+# More calculator examples at esriurl.com/CalculatorExamples
+rec=0
+def SequentialNumber():
+    global rec
+    pStart = 1
+    pInterval = 1
+    if (rec == 0):
+        rec = pStart
+    else:
+        rec = rec + pInterval
+    return rec""", "TEXT", "NO_ENFORCE_DOMAINS")
